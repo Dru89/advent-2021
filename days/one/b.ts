@@ -1,4 +1,4 @@
-import { fetch, isNumber } from '../utils';
+import { fetch, isNumber } from '../../utils';
 
 function process(text: string) {
   const lines = text

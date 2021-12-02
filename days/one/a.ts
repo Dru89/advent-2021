@@ -1,18 +1,10 @@
-import { fetch, isNumber } from '../../utils';
+import convert from "./convert";
 
-async function main() {
-  const res = await fetch('1');
-  const text = await res.text();
-  const lines = text
-    .split('\n')
-    .map((x) => parseFloat(x.trim()))
-    .filter((x) => isNumber(x));
-
+export default function process(text: string): number {
+  const lines = convert(text);
   let result = 0;
   for (let i = 1; i < lines.length; i++) {
-    if (lines[i] > lines[i-1]) result++;
+    if (lines[i] > lines[i - 1]) result++;
   }
   return result;
 }
-
-main().then((result) => console.log(result));

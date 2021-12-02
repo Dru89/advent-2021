@@ -10,7 +10,7 @@ forward 2
 `;
 
 describe("day two", () => {
-  describe("part one", () => {
+  describe("part two", () => {
     it("matches the example", () => {
       expect(process(input)).toBe(900);
     });

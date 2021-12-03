@@ -2,7 +2,7 @@ import { Arguments, Options } from "yargs";
 import { hideBin } from "yargs/helpers";
 import yargs from "yargs";
 
-import { wordToNumber, numberToWord } from "./numbers.mjs";
+import { wordToNumber, numberToWord } from "./numbers";
 
 function coerceDay(arg: string): string {
   const replaced = arg.toLowerCase().trim().replace(/\s+/g, "-");

@@ -1,4 +1,4 @@
-import process from "./b.mjs";
+import process from "./b";
 
 const input = `
 199

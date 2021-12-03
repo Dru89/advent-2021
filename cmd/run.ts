@@ -1,8 +1,8 @@
 import dedent from "ts-dedent";
 
-import args from "./args.mjs";
-import { getOrFetch } from "./cache.mjs";
-import { numberToWord, wordToNumber } from "./numbers.mjs";
+import args from "./args";
+import { getOrFetch } from "./cache";
+import { numberToWord, wordToNumber } from "./numbers";
 
 interface Module {
   default(text: string): Promise<string | number>;
@@ -23,7 +23,7 @@ async function run(day: string, part: "a" | "b"): Promise<string | number> {
   }
 
   const input = getOrFetch(dayWord);
-  const moduleName = `../days/${dayWord}/${part}.mjs`;
+  const moduleName = `../days/${dayWord}/${part}`;
   const mod = await import(moduleName);
 
   if (!isModule(mod)) {

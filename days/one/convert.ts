@@ -1,4 +1,4 @@
-import { isNumber } from "../../utils/index.mjs";
+import { isNumber } from "../../utils/index";
 
 export default function convert(text: string): number[] {
   return text

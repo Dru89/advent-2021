@@ -1,39 +1,16 @@
-import { constants } from "fs";
 import * as fs from "fs/promises";
 import * as path from "path";
 
-import { fetchText } from "../utils/index.mjs";
+import { fetchText, exists, isReadWrite } from "../utils";
 
-import { numberToWord, wordToNumber } from "./numbers.mjs";
+import { numberToWord, wordToNumber } from "./numbers";
+import { findUp } from "./find-up";
 
 async function getCacheDir(): Promise<string> {
-  const pkg = await import("pkg-up").then(({ pkgUp }) => pkgUp());
+  const pkg = await findUp("package.json");
   if (!pkg) throw new Error("Could not find the closest package.json file.");
   const dir = path.dirname(pkg);
   return path.join(dir, ".aoc-cache");
-}
-
-async function exists(p: string): Promise<boolean> {
-  try {
-    await fs.access(p, constants.F_OK);
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
-
-async function isDirectory(p: string): Promise<boolean> {
-  const stat = await fs.stat(p);
-  return stat.isDirectory();
-}
-
-async function isReadWrite(p: string): Promise<boolean> {
-  try {
-    await fs.access(p, constants.R_OK | constants.W_OK);
-    return true;
-  } catch (err) {
-    return false;
-  }
 }
 
 async function createDirIfNeeded(
@@ -44,8 +21,7 @@ async function createDirIfNeeded(
     await fs.mkdir(dir, { recursive });
   }
   const checks = await Promise.all([
-    exists(dir),
-    isDirectory(dir),
+    exists(dir, "directory"),
     isReadWrite(dir),
   ]);
 
@@ -63,7 +39,7 @@ export async function getOrFetch(day: string): Promise<string> {
   const cacheDir = await getCacheDir();
   await createDirIfNeeded(cacheDir);
   const cacheFile = path.join(cacheDir, `${dayWord}.txt`);
-  if (await exists(cacheFile)) {
+  if (await exists(cacheFile, "file")) {
     if (!(await isReadWrite(cacheFile))) {
       throw new Error(
         `Can't read/write cache file (${cacheFile}) for day ${day}`

@@ -17,13 +17,13 @@ function isModule(mod: unknown): mod is Module {
 }
 
 async function run(day: string, part: "a" | "b"): Promise<string | number> {
-  const dayWord = numberToWord.get(day) ?? day;
-  if (!wordToNumber.has(dayWord)) {
-    throw new Error(`Unknown day: ${dayWord}`);
+  const dayNumber = wordToNumber.get(day) ?? day;
+  if (!numberToWord.has(dayNumber)) {
+    throw new Error(`Unknown day: ${dayNumber}`);
   }
 
-  const input = getOrFetch(dayWord);
-  const moduleName = `../days/${dayWord}/${part}`;
+  const input = getOrFetch(dayNumber);
+  const moduleName = `../days/${dayNumber.padStart(2, "0")}/${part}`;
   const mod = await import(moduleName);
 
   if (!isModule(mod)) {

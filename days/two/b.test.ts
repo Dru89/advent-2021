@@ -1,4 +1,4 @@
-import process from "./b";
+import process from "./b.mjs";
 
 const input = `
 forward 5

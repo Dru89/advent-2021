@@ -1,22 +1,24 @@
-import convert from "./convert";
+import convert from "./convert.mjs";
 
 export default function process(text: string) {
   const commands = convert(text);
   let depth: number = 0;
   let position: number = 0;
+  let aim: number = 0;
 
   commands.forEach(({ direction, amount }) => {
     switch (direction) {
       case "down": {
-        depth += amount;
+        aim += amount;
         break;
       }
       case "up": {
-        depth -= amount;
+        aim -= amount;
         break;
       }
       case "forward": {
         position += amount;
+        depth += aim * amount;
         break;
       }
       default: {

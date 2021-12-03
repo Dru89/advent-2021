@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "test": "jest",
-    "aoc": "ts-node -r dotenv/config"
+    "aoc": "ts-node -r dotenv/config",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -25,6 +27,8 @@
     "dotenv": "^10.0.0",
     "isomorphic-fetch": "^3.0.0",
     "lodash": "^4.17.21",
+    "pkg-up": "^4.0.0",
+    "ts-dedent": "^2.2.0",
     "yargs": "^17.3.0"
   }
 }

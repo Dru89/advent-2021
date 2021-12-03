@@ -1,6 +1,6 @@
 import fetch from "isomorphic-fetch";
-import assert from "./assert";
-import { isPositiveInteger } from "./numbers";
+import assert from "./assert.mjs";
+import { isPositiveInteger } from "./numbers.mjs";
 
 function enforcePositiveInteger(value: unknown, field: string): number {
   assert(isPositiveInteger(value), `${field} must be a positive integer`);

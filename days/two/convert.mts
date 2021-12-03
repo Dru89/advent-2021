@@ -1,4 +1,4 @@
-import { isNumber } from "../../utils";
+import { isNumber } from "../../utils/index.mjs";
 
 export const directions = ["forward", "down", "up"] as const;
 export type Direction = typeof directions[number];

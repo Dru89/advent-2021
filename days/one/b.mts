@@ -1,4 +1,4 @@
-import convert from "./convert";
+import convert from "./convert.mjs";
 
 export default function process(text: string) {
   const lines = convert(text);

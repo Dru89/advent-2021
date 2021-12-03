@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "build": "tsc"
+    "build": "tsc",
+    "aoc": "ts-node -r dotenv/config cmd/run.ts"
   },
   "keywords": [],
   "author": "",

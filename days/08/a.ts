@@ -1,5 +1,4 @@
 import convert from "./convert";
-import solve from "./segments";
 
 const SPECIAL = [2, 3, 4, 7];
 export default function process(text: string) {

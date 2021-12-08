@@ -1,5 +1,4 @@
-import { MapList } from "./maplist";
-import { difference, intersect, union } from "./sets";
+import { difference, intersect, union, of, equal, includes } from "./sets";
 
 //   0:      1:      2:      3:      4:
 //  aaaa    ....    aaaa    aaaa    ....
@@ -19,112 +18,76 @@ import { difference, intersect, union } from "./sets";
 // .    f  e    f  .    f  e    f  .    f
 //  gggg    gggg    ....    gggg    gggg
 
-// 1, 2, 7, and 8 have a unique number of digits.
-// 0, 6, and 9 have six digits.
-// 2, 3, and 5 have five digits.
-// prettier-ignore
-const segments = [
-  new Set('abcefg'),  // 0 [6]
-  new Set('cf'),      // 1 [2]*
-  new Set('acdeg'),   // 2 [5]
-  new Set('acdfg'),   // 3 [5]
-  new Set('bcdf'),    // 4 [4]*
-  new Set('abdfg'),   // 5 [5]
-  new Set('abdefg'),  // 6 [6]
-  new Set('acf'),     // 7 [3]*
-  new Set('abcdefg'), // 8 [7]*
-  new Set('abcdfg'),  // 9 [6]
-] as Array<Set<Position>>;
+function assertSize(
+  set: Set<unknown>,
+  size: number,
+  message: string,
+  allowZero = true
+) {
+  const setSize = set.size;
+  if (setSize === size) return;
+  if (setSize === 0 && allowZero) return;
+  console.log(message, "Should have size", size, set);
+  throw new Error(message);
+}
 
-const segmentsBySize = segments.reduce(
-  (map, val) => map.add(val.size, val),
-  new MapList<number, Set<Position>>()
-);
+const solve = (row: string[]): Array<Set<string>> => {
+  const one = intersect(...row.filter((light) => light.length === 2));
+  const four = intersect(...row.filter((light) => light.length === 4));
+  const seven = intersect(...row.filter((light) => light.length === 3));
+  const eight = intersect(...row.filter((light) => light.length === 7));
 
-const positions = ["a", "b", "c", "d", "e", "f", "g"] as const;
-type Position = typeof positions[number];
+  assertSize(one, 2, "Invalid options for '1' light.", false);
+  assertSize(four, 4, "Invalid options for '4' light.", false);
+  assertSize(seven, 3, "Invalid options for '7' light.", false);
+  assertSize(eight, 7, "Invalid options for '8' light.", false);
 
-// LOGIC
-// for each light in row
-//   segments = sizedSegments[light.length]
-//   for each char in light
-//     if solved.has(key) continue
-//     possible[char] = intersect(possible[char], union(...segments))
-//
-//     while [key, value] = canSolveAny(possible)
-//       solved.set(key, value)
-//       for possibleValues in possibilities.values()
-//         possibleValues.delete(value)
+  const solved = [one, four, seven, eight];
+  const sets = row.map((light) => of(light));
+  let unsolved = sets.filter(
+    (set) => !solved.some((solve) => equal(solve, set))
+  );
 
-const solve = (row: string[]): Map<Position, Position> => {
-  const possible = new Map<Position, Set<Position>>();
-  const solvedByKey = new Map<Position, Position>();
-  const solvedValues = new Set<Position>();
+  // Since we've removed 8s, a 9 is anything that contains both a 4 and a 7.
+  const nineFinder = union(four, seven);
+  const nines = unsolved.filter((set) => includes(set, nineFinder));
+  const nine = intersect(...nines);
+  assertSize(nine, 6, "Invalid options for '9' light.");
+  unsolved = unsolved.filter((set) => !equal(set, nine));
 
-  const canSolveAny = (): [Position, Position] | undefined => {
-    for (let [key, value] of possible) {
-      if (value.size === 0) {
-        throw new Error(`${key} impossibly has 0 options`);
-      }
-      if (value.size === 1) {
-        return [key, [...value][0]];
-      }
-    }
-  };
+  // If you subtract 7 from 8, only 6 can fit.
+  const six = intersect(
+    ...unsolved.filter((set) => includes(set, difference(eight, seven)))
+  );
+  assertSize(six, 6, "Invalid options for '6' light.");
+  unsolved = unsolved.filter((set) => !equal(set, six));
 
-  row.forEach((item) => {
-    const segments = segmentsBySize.get(item.length);
-    if (!segments) {
-      throw new Error(`No light matches ${item} with length ${item.length}`);
-    }
+  // Which means 4 minus 1 can only be 5.
+  const five = intersect(
+    ...unsolved.filter((set) => includes(set, difference(four, one)))
+  );
+  assertSize(five, 5, "Invalid options for '5' light.");
+  unsolved = unsolved.filter((set) => !equal(set, five));
 
-    const allLetters = difference(union(...segments), solvedValues);
-    const chars = [...item] as Position[];
-    chars.forEach((char) => {
-      if (solvedByKey.has(char)) return;
-      const p = possible.get(char);
-      if (p == null) {
-        possible.set(char, allLetters);
-      } else {
-        console.log(
-          "got a repeat",
-          char,
-          chars.join(""),
-          p,
-          allLetters,
-          intersect(p, allLetters)
-        );
-        possible.set(char, intersect(p, allLetters));
-      }
+  // 8 - 4 + 1 = 0
+  const zeroFinder = union(difference(eight, four), one);
+  const zero = intersect(
+    ...unsolved.filter((set) => includes(set, zeroFinder))
+  );
+  assertSize(zero, 6, "Invalid options for '0' light.");
+  unsolved = unsolved.filter((set) => !equal(set, zero));
 
-      // console.log("narrowed", char, "to", possible.get(char));
+  // so now 8 - 4 = 2
+  const twoFinder = difference(eight, four);
+  const two = intersect(...unsolved.filter((set) => includes(set, twoFinder)));
+  assertSize(two, 5, "Invalid options for '2' light.");
+  unsolved = unsolved.filter((set) => !equal(set, two));
 
-      let solved: [Position, Position] | undefined;
-      while ((solved = canSolveAny())) {
-        const [key, value] = solved;
-        console.log("solved", key, "=", value);
-        solvedByKey.set(key, value);
-        solvedValues.add(value);
-        possible.delete(key);
-        for (let pValue of possible.values()) {
-          pValue.delete(value);
-        }
-      }
-    });
-  });
+  // and so the only number left is three.
+  const three = intersect(...unsolved);
+  assertSize(three, 5, "Invalid options for '3' light.");
 
-  const all = new Set(row.join(""));
-  console.log(solvedByKey, possible);
-  all.forEach((key) => {
-    const possibilities = possible.get(key as Position);
-    const solution = solvedByKey.get(key as Position);
-    if (!solution) {
-      console.log(key, "has possibilities", possibilities);
-      throw new Error(`Could not find solution for ${key}`);
-    }
-  });
-
-  return solvedByKey;
+  return [zero, one, two, three, four, five, six, seven, eight, nine];
 };
 
 export default solve;

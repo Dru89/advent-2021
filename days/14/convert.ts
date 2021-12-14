@@ -1,7 +1,5 @@
-import { LinkedList } from "./linked-list";
-
 interface Instructions {
-  list: LinkedList<string>;
+  template: string;
   rules: Map<string, string>;
 }
 
@@ -43,26 +41,7 @@ export function convert(text: string): Instructions {
   }
 
   return {
-    list: new LinkedList(template),
+    template,
     rules,
   };
-}
-
-export function cycle(
-  list: LinkedList<string>,
-  rules: Map<string, string>,
-  times = 1
-) {
-  for (let t = 0; t < times; t++) {
-    list.forEachNode((node) => {
-      if (node.prev) {
-        const pair = `${node.prev.value}${node.value}`;
-        const newItem = rules.get(pair);
-        if (newItem) {
-          list.insertBefore(node, newItem);
-        }
-      }
-    });
-  }
-  return list;
 }
